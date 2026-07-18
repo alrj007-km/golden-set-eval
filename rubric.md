@@ -63,15 +63,26 @@ Whether the document states what it does not cover.
 ## Deprecation-signal
 
 Whether a machine can determine if the document's claims are still current.
+This dimension applies only when the document makes at least one time- or
+version-dependent claim. A document with no such claim has nothing for a
+currency signal to attach to; that is not the same condition as a document
+that carries a currency signal, and it does not earn the same score. Mark
+the dimension N/A for that document and exclude it from the document's
+aggregate rather than scoring it a five.
 
 | Score | Criterion |
 |---|---|
+| N/A | The document makes no time- or version-dependent claim. Exclude this dimension from the document's aggregate. |
 | 0 | The document states a time- or version-dependent claim as permanent — "always," "never changes" — without qualification. |
 | 1 | Half or more of the document's substantive claims are time- or version-dependent, and none carry a currency signal. |
 | 2 | At least one time- or version-dependent claim carries no currency signal, and fewer than half of the document's substantive claims are time- or version-dependent. |
 | 3 | At least one time- or version-dependent claim carries a currency signal in prose only, for example "as of the current release," not machine-parseable without inference. |
 | 4 | At least one time- or version-dependent claim carries a machine-parseable marker, but the marker covers the whole document rather than the specific claim. |
-| 5 | No claim in the document depends on a specific version or time period, or every such claim carries an adjacent, machine-parseable marker: a version number or an ISO date. |
+| 5 | Every time- or version-dependent claim in the document carries an adjacent, machine-parseable marker: a version number or an ISO date. |
+
+Implementation note: `run.py` and the scorecard must treat N/A as excluded
+from a document's aggregate, not as a zero and not as a five. A document
+scored N/A on this dimension is judged on the remaining three.
 
 ## What this rubric does not measure
 
