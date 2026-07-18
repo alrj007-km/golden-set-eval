@@ -91,3 +91,10 @@ a document's technical claims are accurate.
 
 Those failures require a human reviewer with domain knowledge. A document
 can score five on every dimension here and still be wrong.
+
+The same reasoning excludes agreement between documents. Each dimension
+scores one document against the golden-set questions mapped to it; a
+contradiction between two documents is a property of the corpus, not of
+either document alone. A golden-set question can still surface a
+contradiction — retrieval returns multiple conflicting sources — but no
+dimension here scores the disagreement itself.
