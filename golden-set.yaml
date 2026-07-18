@@ -1,0 +1,289 @@
+# golden-set.yaml
+#
+# Twenty questions in user phrasing, scored against docs/ per rubric.md.
+# Seventeen are single-document questions, ordered by the rubric dimension
+# each is designed to stress. The final three are `spans_docs` entries —
+# they test drift across documents (contradiction, deprecation, an
+# incomplete prerequisite), not multi-hop retrieval. See rubric.md's
+# "What this rubric does not measure": cross-document consistency is a
+# corpus-level property, not a document-level dimension, so these three
+# entries assert conflicting sources rather than a single expected answer.
+
+questions:
+
+  # ─── Retrievability ──────────────────────────────────────────────
+
+  - id: token-request
+    question: "how do I get an access token for the AURRA API"
+    spans_docs: false
+    rubric_focus: [retrievability]
+    expected_source: docs/api-reference.md
+    expected_answer: >
+      POST /auth/token with client_id, client_secret, and
+      grant_type=client_credentials. Returns a Bearer token that expires
+      in 3,600 seconds.
+
+  - id: setpoint-temperature-range
+    question: "what's the valid temperature range I can set my thermostat to"
+    spans_docs: false
+    rubric_focus: [retrievability]
+    expected_source: docs/api-reference.md
+    expected_answer: >
+      40 to 90 degrees Fahrenheit, set via
+      POST /thermostat/{device_id}/setpoint.
+
+  - id: wiring-terminal-colors
+    question: "which wire color goes on which terminal when I install my thermostat"
+    spans_docs: false
+    rubric_focus: [retrievability]
+    expected_source: docs/smart-thermostat-user-guide.md
+    expected_answer: >
+      R = red (power), C = blue or black (common), W/W1 = white (heat
+      stage 1), W2 = white/brown (heat stage 2), Y/Y1 = yellow (cooling
+      stage 1), G = green (fan), O/B = orange/blue (heat pump reversing
+      valve).
+
+  - id: prediction-accuracy
+    question: "how accurate is AURRA at predicting HVAC failures"
+    spans_docs: false
+    rubric_focus: [retrievability]
+    expected_source: docs/model-card.md
+    expected_answer: >
+      At the platform default threshold of 0.72: precision 0.91, recall
+      0.84, F1 0.87, AUC-ROC 0.94.
+
+  - id: heat-pump-compatibility
+    question: "does this thermostat work with a heat pump"
+    spans_docs: false
+    rubric_focus: [retrievability]
+    expected_source: docs/smart-thermostat-user-guide.md
+    expected_answer: >
+      Yes — heat pump systems, with or without auxiliary heat, are
+      listed as compatible.
+
+  # ─── Task-completeness ───────────────────────────────────────────
+
+  - id: installation-walkthrough
+    question: "walk me through installing the thermostat from start to finish"
+    spans_docs: false
+    rubric_focus: [task-completeness]
+    expected_source: docs/smart-thermostat-user-guide.md
+    expected_answer: >
+      Four steps: (1) turn off power at the breaker and remove the old
+      thermostat, photographing the wiring; (2) mount the AURRA wall
+      plate and pass wires through the center opening; (3) connect each
+      wire to its labeled terminal; (4) snap the display onto the wall
+      plate and restore power at the breaker.
+
+  - id: weekly-schedule-setup
+    question: "how do I set up different temperatures for morning, day, evening, and night"
+    spans_docs: false
+    rubric_focus: [task-completeness]
+    expected_source: docs/smart-thermostat-user-guide.md
+    expected_answer: >
+      In the app, open Schedule, tap + New Schedule and name it, then
+      tap + Add Time Block for each period, setting a start time, end
+      time, and target temperature, and select which days each block
+      applies to.
+
+  - id: vibration-telemetry-submission
+    question: "how do I send vibration sensor readings to the API"
+    spans_docs: false
+    rubric_focus: [task-completeness]
+    expected_source: docs/api-reference.md
+    expected_answer: >
+      POST /diagnostics/vibration with device_id, timestamp (ISO 8601
+      UTC), amplitude (g-force, 0.0–10.0), frequency (Hz), and optional
+      duration_ms (default 1000). Returns 201 with an accepted flag and
+      a reading_id.
+
+  - id: alexa-voice-linking
+    question: "how do I connect Alexa to my thermostat"
+    spans_docs: false
+    rubric_focus: [task-completeness]
+    expected_source: docs/smart-thermostat-user-guide.md
+    expected_answer: >
+      Open the Amazon Alexa app, go to More → Skills & Games, search for
+      AURRA, tap Enable to Use and sign in with your AURRA account
+      credentials, then say "Alexa, discover my devices."
+
+  - id: api-authentication-workflow
+    question: "how do I authenticate my integration and keep it authenticated"
+    spans_docs: false
+    rubric_focus: [task-completeness]
+    expected_source: docs/developer-integration-handout.md
+    expected_answer: >
+      POST /auth/token with client credentials to get a Bearer token,
+      store it with its expiry timestamp, and refresh it before the
+      3,600-second expiry to avoid 401 errors mid-session.
+
+  # ─── Boundary-clarity ────────────────────────────────────────────
+
+  - id: commercial-hvac-exclusion
+    question: "can I use predictive maintenance on a commercial HVAC system"
+    spans_docs: false
+    rubric_focus: [boundary-clarity]
+    expected_source: docs/model-card.md
+    expected_answer: >
+      No. The Out-of-Scope Uses callout explicitly excludes commercial
+      and industrial HVAC systems.
+
+  - id: old-furnace-exclusion
+    question: "will predictive maintenance work on my 20-year-old furnace"
+    spans_docs: false
+    rubric_focus: [boundary-clarity]
+    expected_source: docs/model-card.md
+    expected_answer: >
+      Not reliably. The model is not validated for HVAC units older than
+      15 years; prediction confidence for such units is called out as
+      unreliable.
+
+  - id: millivolt-system-exclusion
+    question: "can I install this on a millivolt system with no C-wire"
+    spans_docs: false
+    rubric_focus: [boundary-clarity]
+    expected_source: docs/smart-thermostat-user-guide.md
+    expected_answer: >
+      No. Millivolt systems are explicitly listed as not supported in
+      the compatibility table.
+
+  - id: geothermal-exclusion
+    question: "is predictive maintenance validated for geothermal heat pumps"
+    spans_docs: false
+    rubric_focus: [boundary-clarity]
+    expected_source: docs/model-card.md
+    expected_answer: >
+      No. There is zero training data for geothermal configurations;
+      predictions for geothermal units will be inaccurate.
+
+  # ─── Deprecation-signal ──────────────────────────────────────────
+
+  - id: firmware-version-currency
+    question: "what firmware version does this guide apply to"
+    spans_docs: false
+    rubric_focus: [deprecation-signal]
+    expected_source: docs/smart-thermostat-user-guide.md
+    expected_answer: >
+      Firmware version 2.4 and later — stated with no upper bound.
+    note: >
+      No other document in the corpus states a firmware version to
+      check this against. Should score low on deprecation-signal: an
+      open-ended "and later" claim reads close to a permanence claim
+      for all future firmware.
+
+  - id: model-card-currency
+    question: "how do I know if the model card is still up to date"
+    spans_docs: false
+    rubric_focus: [deprecation-signal]
+    expected_source: docs/model-card.md
+    expected_answer: >
+      The model card states its version (1.2, April 2026) and retraining
+      cadence (quarterly), and points to a changelog URL for updates.
+    note: >
+      A positive example: a machine-parseable version marker plus a
+      stated update cadence and changelog pointer. Should score well on
+      deprecation-signal.
+
+  - id: failure-detection-accuracy-currency
+    question: "is the compressor bearing failure detection accuracy still current"
+    spans_docs: false
+    rubric_focus: [deprecation-signal]
+    expected_source: docs/model-card.md
+    expected_answer: >
+      The current figures (precision 0.94, recall 0.89) are tied to
+      version 1.2. The version history shows this metric changing
+      release to release, so "still current" depends on whether a newer
+      version has since shipped.
+
+  # ─── Cross-document drift ────────────────────────────────────────
+  #
+  # These three test whether the corpus's own inconsistencies are
+  # retrievable and identifiable — not whether an answer can be
+  # assembled from several documents. Each entry asserts the
+  # conflicting or missing sources directly rather than an
+  # expected_answer.
+
+  - id: contradiction-alert-threshold
+    # finding #1 — three-way disagreement on how the alert threshold is changed
+    question: "how do I change the alert threshold"
+    spans_docs: true
+    drift_type: contradiction
+    rubric_focus: [cross_document_consistency]
+    sources:
+      - doc: docs/api-reference.md
+        claim: >
+          confidence is a required field on a single alert, submitted
+          per alert. No mechanism for changing a platform-wide
+          threshold is described.
+      - doc: docs/model-card.md
+        claim: >
+          Integrators can override the default 0.72 threshold via the
+          /alerts endpoint's confidence parameter.
+      - doc: docs/developer-integration-handout.md
+        claim: >
+          Enterprise integrations may configure custom thresholds via
+          the developer portal — not via any API call.
+    expected_result: >
+      No single correct answer exists. The three sources describe three
+      incompatible mechanisms for the same claimed capability.
+    note: >
+      Tests whether retrieval surfaces the conflict itself (ideally all
+      three sources), not whether a judge can produce a right answer.
+
+  - id: unresolvable-threshold-currency
+    # finding #1 — same conflict, scored on whether currency signals let a reader resolve it
+    question: "which of these threshold instructions is current"
+    spans_docs: true
+    drift_type: deprecation
+    rubric_focus: [cross_document_consistency, deprecation-signal]
+    sources:
+      - doc: docs/api-reference.md
+        claim: >
+          confidence is a required field on a single alert, submitted
+          per alert. No mechanism for changing a platform-wide
+          threshold is described.
+      - doc: docs/model-card.md
+        claim: >
+          Integrators can override the default 0.72 threshold via the
+          /alerts endpoint's confidence parameter.
+      - doc: docs/developer-integration-handout.md
+        claim: >
+          Enterprise integrations may configure custom thresholds via
+          the developer portal — not via any API call.
+    expected_result: >
+      Not determinable. None of the three sources carries a version or
+      date marker that would let a reader tell which mechanism is
+      current.
+    note: >
+      Same underlying conflict as contradiction-alert-threshold. That
+      entry tests whether the contradiction is retrievable; this entry
+      tests whether the corpus can resolve it by recency. It can't —
+      that absence is the finding.
+
+  - id: incomplete-prerequisite-webhook
+    # finding #3 — webhook registration is assumed as a prerequisite but never documented
+    question: "how do I register a webhook to get AURRA alerts pushed to my server instead of polling for them"
+    spans_docs: true
+    drift_type: incomplete_prerequisite
+    rubric_focus: [cross_document_consistency, task-completeness]
+    sources:
+      - doc: docs/api-reference.md
+        claim: >
+          Mentions registering a webhook for the predictive.alert_created
+          event as an alternative to polling, but does not say how to
+          register one.
+      - doc: docs/developer-integration-handout.md
+        claim: >
+          Documents webhook event types, an example payload, and
+          signature verification, but never documents a registration
+          endpoint or process.
+    expected_result: >
+      Not answerable from the corpus. Both documents that mention
+      webhooks assume registration already happened; neither explains
+      how to do it.
+    note: >
+      The integration handout's own five-step workflow (step 5) makes
+      this worse: it tells the reader to "use webhooks (POST /alerts)",
+      conflating webhook delivery with the unrelated alert-creation
+      endpoint in the same sentence. That's an internal error in the
+      corpus, not just a missing prerequisite.
